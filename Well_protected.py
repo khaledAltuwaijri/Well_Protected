@@ -17,30 +17,29 @@ class BungieData(object):
         """
         self.api_key = api_key
 
-    def get_playerByTagName(self, gamertag):
+    def get_player_by_tag_name(self, gamertag):
         """Gamertag (str): The PSN gamertag a player uses on Destiny 2."""
         site_call = "https://bungie.net/Platform/Destiny2/SearchDestinyPlayer/2/" + gamertag
         request = requests.get(site_call, headers={"X-API-Key": self.api_key})
         return request.json()['Response']
 
-    def get_DestinyUserId(self, gamertag):
+    def get_Destiny_user_id(self, gamertag):
         """Gamertag (str): The PSN gamertag a player uses on Destiny 2."""
-        info = self.get_playerByTagName(gamertag)
+        info = self.get_player_by_tag_name(gamertag)
         return int(info[0]['membershipId'])
 
-    def get_BungieUserId(self, membership_id):
+    def get_bungie_user_id(self, membership_id):
         """.
 
         membership_id (int): the Destiny membership_id of a player
         (the id returned by get_DestinyUserId)
         Uses old Destiny endpoint for a PSN user to get the BUNGIE membershipId
         """
-        site_call = "https://bungie.net/Platform/User/GetMembershipsById/"
-        + str(membership_id) + "/2/"
+        site_call = "https://bungie.net/Platform/User/GetMembershipsById/" + str(membership_id) + "/2/"
         request = requests.get(site_call, headers={"X-API-Key": self.api_key})
         return int(request.json()['Response']['bungieNetUser']['membershipId'])
 
-    def get_DestinyUserProfile(self, membership_id, components=[100]):
+    def get_destiny_user_profile(self, membership_id, components=[100]):
         """.
 
         membership_id (int): the Destiny membership_id of a player (returned by get_DestinyUserId)
@@ -55,42 +54,50 @@ class BungieData(object):
         request = requests.get(site_call, headers={"X-API-Key": self.api_key})
         return request.json()['Response']
 
-    def get_postGameStats(self, game_id):
+    def get_post_game_stats(self, game_id):
         """game_id (int): Need to look further into this, but game_ids can be found."""
         site_call = "https://bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/" + str(game_id)
         request = requests.get(site_call, headers={"X-API-Key": self.api_key})
         return request.json()['Response']
 
-    def get_Manifest(self):
+    def get_manifest(self):
         site_call = "https://bungie.net/Platform/Destiny2/Manifest/"
         request = requests.get(site_call, headers={"X-API-Key": self.api_key})
         return request.json()['Response']
 
-    def get_PlayerStats(self, membership_id):
+    def get_player_stats(self, membership_id):
         site_call = "https://bungie.net/Platform/Destiny2/2/Account/" + str(membership_id) + "/Stats/"
         request = requests.get(site_call, headers={"X-API-Key": self.api_key})
         return request.json()['Response']
 
-    def get_StatDefinitions(self):
+    def get_stat_definitions(self):
         site_call = "https://bungie.net/Platform/Destiny2/Stats/Definition/"
         request = requests.get(site_call, headers={"X-API-Key": self.api_key})
         return request.json()['Response']
+
+    def get_xur_inventory(self, membership_type, membership_id, character_id, vendor_hash):
+        # "/Destiny2/{membershipType}/Profile/{destinyMembershipId}/Character/{characterId}/Vendors/{vendorHash}/"
+        site_url = "https://bungie.net/Platform/Destiny2/" + membership_type + "/Profile/" + \
+                   membership_id + "/Character/" + character_id + "/Vendors/" + vendor_hash + "/"
 
 
 if __name__ == '__main__':
     # Never put your keys in code... export 'em!
     bungie = BungieData(api_key=os.environ["BUNGIE_API_KEY"])
-    PSN_ID = ""
+    PSN_ID = "KH4L3D-TH3-GR348"
+
     # Get Destiny MembershipId by PSN gamertag
-    my_destiny_id = bungie.get_DestinyUserId(PSN_ID)
-    print("My's Destiny ID: {}".format(my_destiny_id))
+    membership_ID = bungie.get_Destiny_user_id(PSN_ID)
+    print("My's Destiny ID: {}".format(membership_ID))
     print("-----------------")
 
     # Get User's Profile info and more detailed Character info
-    my_profile = bungie.get_DestinyUserProfile(my_destiny_id, components=[100, 200])
+    my_profile = bungie.get_destiny_user_profile(membership_ID, components=[400])
     print("Destiny Profile Info by Charcter: \n{}".format(my_profile))
     print("-----------------")
 
+    # See Xur inventory
+    xur_inventory = bungie
     # Get a random single game's post carnage stats
-    game_stats = bungie.get_postGameStats(100)
-    print("Random Destiny 2 game's post carnage game stats: \n{}".format(game_stats))
+    # game_stats = bungie.get_postGameStats(100)
+    # print("Random Destiny 2 game's post carnage game stats: \n{}".format(game_stats))
