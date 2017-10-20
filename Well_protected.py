@@ -17,6 +17,7 @@ PSN_ID = "KH4L3D-TH3-GR348"
 
 
 class BungieData(object):
+
     def __init__(self, api_key):
         """
 
@@ -93,7 +94,14 @@ class BungieData(object):
 
         :param membership_id: the Destiny membership_id of a player.
         :param character_id: the character ID you passed.
-        :param components: see API docs
+        :param components:
+            Characters: 200
+            CharacterInventories: 201
+            CharacterProgressions: 202
+            CharacterActivities: 204
+            CharacterEquipment: 205
+            Kiosks: 500
+
         :return:
         """
 
@@ -115,7 +123,7 @@ if __name__ == '__main__':
     second_character = your_profile['characterIds'][1]
     third_character = your_profile['characterIds'][2]
 
-    # set Character
+    # set Character and Components
     character = bungie.get_character_by_id(your_membership_id, first_character)
 
     # # Get User's Profile info and more detailed Character info
